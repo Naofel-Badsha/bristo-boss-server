@@ -81,6 +81,11 @@ async function run() {
    });
 
   //-------see all Client-reviews----------get by database -------?
+  app.get('/reviews', async(req, res) =>{
+    const result = await reviewCollection.find().toArray();
+    res.send(result);
+ });
+
 
   //----***-------Menu--------items--------End-----------
 
