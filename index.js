@@ -93,14 +93,22 @@ async function run() {
 
   //----***----Cart------Cullection--------Api--------Start-----***-----?
   //-----Cart-------Cullection------Get User & user product add cart  by see database -------?
-
+   app.get('/carts', async(req, res) => {
+    // const query = {email: user.email}
+    const result = await cartCollection.find().toArray();
+    res.send(result)
+   })
 
   //-----Cart-------Cullection------Post User by go database -------?
- 
+  app.post('/carts', async(req, res) => {
+    const cartItem = req.body;
+    const result = await cartCollection.insertOne(cartItem);
+    res.send(result);
+  })
 
-   //-----Cart-------Cullection------Delete User by go database -------?
+  //-----Cart-------Cullection------Delete User by go database -------?
 
-   //---***-----Cart------Cullection--------Api--------End----***------?
+  //---***-----Cart------Cullection--------Api--------End----***------?
 
 
 
