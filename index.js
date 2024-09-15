@@ -94,8 +94,9 @@ async function run() {
   //----***----Cart------Cullection--------Api--------Start-----***-----?
   //-----Cart-------Cullection------Get User & user product add cart  by see database -------?
    app.get('/carts', async(req, res) => {
-    // const query = {email: user.email}
-    const result = await cartCollection.find().toArray();
+    const email = req.query.email;
+    const query = {email: email}
+    const result = await cartCollection.find(query).toArray();
     res.send(result)
    })
 
@@ -107,7 +108,12 @@ async function run() {
   })
 
   //-----Cart-------Cullection------Delete User by go database -------?
-
+  app.delete('/carts/:id', async(req, res) => {
+    const id = req.params.id;
+    const query = {_id: new ObjectId(id)};
+    const result = await cartCollection.deleteOne(query);
+    res.send(result)
+  })
   //---***-----Cart------Cullection--------Api--------End----***------?
 
 
