@@ -62,10 +62,27 @@ async function run() {
   // VerifyToken, verifyAdmin,
 
 
-  //-------User-------Admin-------Related---------Api---------
 
+  //-------User-------Admin-------Related---------Api---------
+  //------------Get-------All-----Users--------
+   app.get('/users', async(req, res) => {
+    const result = await userCollection.find().toArray();
+    res.send(result)
+   })
 
   //--------logged user created----------Post by database-----------?
+  app.post('/users', async(req, res) => {
+    const user = req.body;
+    //-----insert email if user doesnt exists:
+    //------you can do this many ways (1. email unique, 2.upsert 3. siple checking)
+     const query = {email: user.email}
+     const existingUser = await userCollection.findOne(query);
+     if(existingUser){
+      return res.send({message: 'user already existing', insertedId: null})
+     }
+    const result = await userCollection.insertOne(user);
+    res.send(result)
+  })
  
   //----***----User------Cullection--------Api--------End----***------?
 
