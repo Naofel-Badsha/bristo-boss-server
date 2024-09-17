@@ -82,8 +82,16 @@ async function run() {
      }
     const result = await userCollection.insertOne(user);
     res.send(result)
+  });
+
+  //------------Delete-------A-------Users--------
+  app.delete('/users/:id', async(req, res) => {
+    const id = req.params.id;
+    const query = {_id: new ObjectId(id)};
+    const result = await userCollection.deleteOne(query);
+    res.send(result);
   })
- 
+
   //----***----User------Cullection--------Api--------End----***------?
 
 
@@ -102,8 +110,6 @@ async function run() {
     const result = await reviewCollection.find().toArray();
     res.send(result);
  });
-
-
   //----***-------Menu--------items--------End-----------
 
 
