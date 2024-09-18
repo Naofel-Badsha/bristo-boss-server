@@ -146,10 +146,22 @@ async function run() {
 
   //----***-------Menu--------items--------Start-----------
   //-------see all menu-item----------get by database -------?
-   app.get('/menu', async(req, res) =>{
+   app.get('/menu', verifyToken, verifyAdmin, async(req, res) =>{
       const result = await menuCollection.find().toArray();
       res.send(result);
    });
+
+  //------deleted----menu------
+  app.delete('/menu/:id', async(req, res) => {
+    const id = req.params.id;
+    const query = {_id: new ObjectId(id)};
+    const result = await menuCollection.deleteOne(query);
+    res.send(result)
+  })
+
+
+
+
 
   //-------see all Client-reviews----------get by database -------?
   app.get('/reviews', async(req, res) =>{
