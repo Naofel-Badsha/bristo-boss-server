@@ -103,7 +103,24 @@ async function run() {
     };
     const result = await userCollection.updateOne(filter, updateDoc);
     res.send(result);
+  });
+
+  
+  //----User---Admin----email---Get---checked---and---hide---dashboard----
+  app.get('/users/admin/:email', verifyToken, async(req, res) => {
+     const email = req.params.email;
+     if(email !== req.decoded.email){
+     return res.status(403).send({message: 'unauthorizer access'}) 
+     }
+     const query = {email: email};
+     const user = await userCollection.findOne(query);
+     let admin = false;
+     if(user){
+      admin = user?.role === 'admin';
+     }
+     res.send({admin})
   })
+
 
 
   //------------Delete-------A-------Users--------
