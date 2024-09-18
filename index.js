@@ -38,34 +38,42 @@ async function run() {
   //----------Database---name---&-----Collection--------
   const cartCollection = client.db("bistroDb").collection("carts");
 
-  //------jwt-----related------Api-------
-  
+  //--------jwt-------related--------Api-------
+  //---------------Created----a----token------
+  app.post('/jwt', async(req, res) => {
+    const user = req.body;
+     const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: '1h'});
+     res.send({token})
+  })
 
 
-
-
-
+   //------Create----a---token--middlewares---&----User----------
+   const verifyToken = (req, res, next) => {
+    console.log('inside verify token', req.headers.authorization);
+    if(!req.headers.authorization){
+      return res.status(401).send({message: 'Forbidden Access'});
+    }
+    const token = req.headers.authorization.split(' ')[1];
+    //-------VerifyToken-------
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+      if(err){
+        return res.status(401).send({message: 'Forbidden Access'});
+      }
+      req.decoded = decoded;
+      next();
+    })
+   }
    
-
-  //----***----User------Cullection--------Api--------Start----***------?
-  //--------logged user Admin----------Patch/Update to database-----------?
-  // VerifyToken, verifyAdmin,
-
-
-  //--------logged user created----------Delete to database-----------?
-  // VerifyToken, verifyAdmin,
-
-
   
-
-  //--------logged user created----------Get to database-----------?
-  // VerifyToken, verifyAdmin,
 
 
 
   //-------User-------Admin-------Related---------Api---------
   //------------Get-------All-----Users--------
-   app.get('/users', async(req, res) => {
+   app.get('/users', verifyToken, async(req, res) => {
+    //----token daker jonno------
+    // console.log(req.headers);
     const result = await userCollection.find().toArray();
     res.send(result)
    })
