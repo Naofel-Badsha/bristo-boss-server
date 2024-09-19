@@ -5,6 +5,8 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require("cors");
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+//------Stripe-----
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000
 
 //--------middelware---
@@ -145,20 +147,37 @@ async function run() {
 
 
   //----***-------Menu--------items--------Start-----------
-  //-------see all menu-item----------get by database -------?
-   app.get('/menu', verifyToken, verifyAdmin, async(req, res) =>{
+  //-------see single menu-item----------get by database -------?
+   app.get("/menu/:id", async(req, res) => {
+    const id = req.params.id;
+    const query = {_id: new ObjectId(id)};
+    const result = await menuCollection.findOne(query);
+    res.send(result);
+  });
+
+   //-------see all menu-item----------get by database -------?
+   app.get('/menu',  async(req, res) =>{
       const result = await menuCollection.find().toArray();
       res.send(result);
    });
 
+   //-------menu-item----------Post by database -------?
+   app.post('/menu', async(req, res) => {
+    const menuItem = req.body;
+    const result = await menuCollection.insertOne(menuItem)
+    res.send(result)
+   })
+  
+
+
+
   //------deleted----menu------
-  app.delete('/menu/:id', async(req, res) => {
+  app.delete('/menu/:id', verifyToken, async(req, res) => {
     const id = req.params.id;
     const query = {_id: new ObjectId(id)};
     const result = await menuCollection.deleteOne(query);
     res.send(result)
   })
-
 
 
 
@@ -196,6 +215,33 @@ async function run() {
     res.send(result)
   })
   //---***-----Cart------Cullection--------Api--------End----***------?
+
+
+
+  //------Payment----intent--------Api--------Start-----
+  //--------Post------Strip-----payment-intent---------
+  app.post("/create-payment-intent", async (req, res) => {
+    const { price } = req.body;
+    const amount = parseInt(price * 100);
+    console.log(amount, 'amount inside a payment the intent')
+  
+    // Create a PaymentIntent with the order amount and currency
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount,
+      currency: "usd",
+      // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
+      payment_method_types: [
+        "card",
+      ],
+    });
+  
+    res.send({
+      clientSecret: paymentIntent.client_secret,
+    });
+  });
+
+
+
 
 
 
