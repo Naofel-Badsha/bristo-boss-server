@@ -39,6 +39,8 @@ async function run() {
   const reviewCollection = client.db("bistroDb").collection("reviews");
   //----------Database---name---&-----Collection--------
   const cartCollection = client.db("bistroDb").collection("carts");
+  //----------Database---name---&-----Collection--------
+  const paymentCollection = client.db("bistroDb").collection("payments");
 
 
   //--------jwt-------related--------Api-------
@@ -256,6 +258,19 @@ async function run() {
       clientSecret: paymentIntent.client_secret,
     });
   });
+
+  //-------payment---details-----post-by-----database----
+  app.post('/payments', async(req, res) =>{
+    const payment = req.body;
+    const paymentResult = await paymentCollection.insertOne(payment);
+    //-------carefully delete each item from the cart--
+    console.log('payment complite', payment)
+    const query = {_id: {
+      $in: payment.cartIds.map(id => new ObjectId(id))
+    }};
+    const deleteResult = await cartCollection.deleteMany(query);
+    res.send({paymentResult, deleteResult});
+  })
 
 
 
