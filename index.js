@@ -162,17 +162,36 @@ async function run() {
    });
 
    //-------menu-item----------Post by database -------?
-   app.post('/menu', async(req, res) => {
-    const menuItem = req.body;
-    const result = await menuCollection.insertOne(menuItem)
+   app.post('/menu', verifyToken, verifyAdmin, async(req, res) => {
+    // const item = req.body;
+    const item = req.body;
+    const result = await menuCollection.insertOne(item)
     res.send(result)
    })
-  
+
+  //-------menu-item----------Update by database -------?
+  app.patch('/menu/:id', async(req, res) => {
+    // const item = req.body;
+    const item = req.body;
+    const id = req.params.id;
+    const filter = {_id: new ObjectId(id)}
+    const updateDoc = {
+      $set: {
+        name: item.name,
+        category: item.category,
+        price: item.price,
+        recipe: item.recipe,
+        image: item.image
+      }
+    }
+    const result = await menuCollection.updateOne(filter, updateDoc)
+    res.send(result)
+  })
 
 
 
   //------deleted----menu------
-  app.delete('/menu/:id', verifyToken, async(req, res) => {
+  app.delete('/menu/:id', verifyToken, verifyAdmin, async(req, res) => {
     const id = req.params.id;
     const query = {_id: new ObjectId(id)};
     const result = await menuCollection.deleteOne(query);
