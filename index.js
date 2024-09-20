@@ -239,7 +239,7 @@ async function run() {
 
   //------Payment----intent--------Api--------Start-----
   //--------Post------Strip-----payment-intent---------
-  app.post("/create-payment-intent", async (req, res) => {
+  app.post('/create-payment-intent', async (req, res) => {
     const { price } = req.body;
     const amount = parseInt(price * 100);
     console.log(amount, 'amount inside a payment the intent')
@@ -249,9 +249,7 @@ async function run() {
       amount: amount,
       currency: "usd",
       // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
-      payment_method_types: [
-        "card",
-      ],
+      payment_method_types: ["card"]
     });
   
     res.send({
