@@ -283,7 +283,38 @@ async function run() {
     res.send({paymentResult, deleteResult});
   })
 
+  //-----admin stats or analytices-------
+  app.get('/admin-stats', verifyToken, verifyAdmin, async(req, res) => {
+    const users = await userCollection.estimatedDocumentCount();
+    const menuItems = await menuCollection.estimatedDocumentCount();
+    const orders = await paymentCollection.estimatedDocumentCount()
+    
+    //----This is not the best awy 
+    // const payments = await paymentCollection.find().toArray();
+    // const reveneue = payments.reduce((total, payment) => total + payment.price, 0);
+    
+    //-------Best awy------
+    const result = await paymentCollection.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalRevenue: {
+            $sum: '$price'
+          }
+        }
+      }
+    ]).toArray();
+    const revenue = result.length > 0 ? result[0].totalRevenue: 0;
+    res.send({
+      users,
+      menuItems,
+      orders,
+      revenue
+    })
+  });
 
+
+  //-------Order---- status-----
 
 
 
