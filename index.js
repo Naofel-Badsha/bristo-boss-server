@@ -5,8 +5,17 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require("cors");
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-//------Stripe-----
+//------Stripe--------
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+//-------mailgun--------
+const formData = require('form-data');
+const Mailgun = require('mailgun.js');
+const mailgun = new Mailgun(formData);
+const mg = mailgun.client({
+  username: 'api', 
+  key: process.env.MAIL_GUN_API_KEY || 'key-yourkeyhere'
+});
+
 const port = process.env.PORT || 5000
 
 //--------middelware---
@@ -278,6 +287,24 @@ async function run() {
       $in: payment.cartIds.map(id => new ObjectId(id))
     }};
     const deleteResult = await cartCollection.deleteMany(query);
+
+    //------send user email about payment confirmation---from---Mailgun-----
+    mg.messages.create(process.env.MAIL_SENDING_DOMAIN, {
+      from: "Mailgun Sandbox <mailgun@sandboxb939d42b15f24a27a520a5acf39ae141.mailgun.org>",
+      to: ["md.naofel.badsha@gmail.com"],
+      subject: "Bristo Boss Order Confirmation",
+      text: "Testing some Mailgun awesomness!",
+      html: `
+      <div>
+      <h2>Thank you for your order</h2>
+      <h4>Your Transaction Id: <Strong>${payment.transactionId}</Strong></h4>
+      <p>We would like to get your feedback about the food</p>
+      </div>
+      `
+    })
+    .then(msg => console.log(msg)) // logs response data
+    .catch(err => console.log(err)); // logs any error
+    
     res.send({paymentResult, deleteResult});
   })
 
