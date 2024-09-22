@@ -192,15 +192,13 @@ async function run() {
 
 
 
-  //------deleted----menu------
+  //------deleted-------menu--------
   app.delete('/menu/:id', verifyToken, verifyAdmin, async(req, res) => {
     const id = req.params.id;
     const query = {_id: new ObjectId(id)};
     const result = await menuCollection.deleteOne(query);
     res.send(result)
   })
-
-
 
 
   //-------see all Client-reviews----------get by database -------?
@@ -270,7 +268,7 @@ async function run() {
   })
 
 
-  //-------payment---details-----post-by-----database----
+  //-------payment---details-----Post---by-----database----
   app.post('/payments', async(req, res) =>{
     const payment = req.body;
     const paymentResult = await paymentCollection.insertOne(payment);
@@ -315,7 +313,7 @@ async function run() {
 
 
   //-------using-------aggregate-------pipeline-----
-  app.get('/order-stats', verifyToken, verifyAdmin, async(req, res) => {
+  app.get('/order-stats',  async(req, res) => {
     const result = await paymentCollection.aggregate([
     {
       $unwind: '$menuItemIds'
@@ -352,10 +350,7 @@ async function run() {
     res.send(result);
   })
 
-
-
-
-    // Send a ping to confirm a successful connection
+  // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
