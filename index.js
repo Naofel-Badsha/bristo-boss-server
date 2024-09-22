@@ -314,7 +314,43 @@ async function run() {
   });
 
 
-  //-------Order---- status-----
+  //-------using-------aggregate-------pipeline-----
+  app.get('/order-stats', verifyToken, verifyAdmin, async(req, res) => {
+    const result = await paymentCollection.aggregate([
+    {
+      $unwind: '$menuItemIds'
+    },
+    {
+      $lookup: {
+        from: 'menu',
+        localField: 'menuItemIds',
+        foreignField: '_id',
+        as: 'menuItems'
+      }
+    },
+    {
+      $unwind: '$menuItems' 
+    },
+    {
+      $group: {
+        _id: '$menuItems.category',
+        quantity: {$sum: 1},
+        revenue: {$sum: '$menuItems.price'}
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        category: '$_id',
+        quantity: '$quantity',
+        revenue:'$revenue' 
+
+      }
+    }
+    
+    ]).toArray();
+    res.send(result);
+  })
 
 
 
